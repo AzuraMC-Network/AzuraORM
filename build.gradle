@@ -1,0 +1,28 @@
+plugins {
+    id 'java'
+    id 'com.gradleup.shadow' version '8.3.1'
+}
+
+group = 'cc.azuramc'
+version = '1.0.0'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // https://mvnrepository.com/artifact/com.zaxxer/HikariCP
+    implementation("com.zaxxer:HikariCP:6.3.0")
+    // https://mvnrepository.com/artifact/com.mysql/mysql-connector-j
+    implementation("com.mysql:mysql-connector-j:9.3.0")
+    // https://mvnrepository.com/artifact/com.h2database/h2
+    implementation("com.h2database:h2:2.3.232")
+
+    compileOnly 'org.projectlombok:lombok:1.18.34'
+    annotationProcessor 'org.projectlombok:lombok:1.18.34'
+
+    // https://mvnrepository.com/artifact/org.slf4j/slf4j-api
+    implementation("org.slf4j:slf4j-api:2.0.17")
+    implementation ("ch.qos.logback:logback-classic:1.5.13")
+
+}
