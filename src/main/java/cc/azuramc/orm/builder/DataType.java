@@ -13,21 +13,81 @@ public class DataType {
      */
     @Getter
     public enum Type {
-        // 整数类型
-        INT("INT"),
-        TINYINT("TINYINT"),
-        SMALLINT("SMALLINT"),
-        MEDIUMINT("MEDIUMINT"),
-        BIGINT("BIGINT"),
+        // 整数类型 - 可选显示宽度
+        INT("INT") {
+            @Override
+            public String withSize(int size) {
+                return sql + "(" + size + ")";
+            }
+        },
+        TINYINT("TINYINT") {
+            @Override
+            public String withSize(int size) {
+                return sql + "(" + size + ")";
+            }
+        },
+        SMALLINT("SMALLINT") {
+            @Override
+            public String withSize(int size) {
+                return sql + "(" + size + ")";
+            }
+        },
+        MEDIUMINT("MEDIUMINT") {
+            @Override
+            public String withSize(int size) {
+                return sql + "(" + size + ")";
+            }
+        },
+        BIGINT("BIGINT") {
+            @Override
+            public String withSize(int size) {
+                return sql + "(" + size + ")";
+            }
+        },
         
-        // 浮点数类型
-        FLOAT("FLOAT"),
-        DOUBLE("DOUBLE"),
-        DECIMAL("DECIMAL"),
+        // 浮点数类型 - 可选精度
+        FLOAT("FLOAT") {
+            @Override
+            public String withPrecision(int precision) {
+                return sql + "(" + precision + ")";
+            }
+            @Override
+            public String withPrecision(int precision, int scale) {
+                return sql + "(" + precision + "," + scale + ")";
+            }
+        },
+        DOUBLE("DOUBLE") {
+            @Override
+            public String withPrecision(int precision) {
+                return sql + "(" + precision + ")";
+            }
+            @Override
+            public String withPrecision(int precision, int scale) {
+                return sql + "(" + precision + "," + scale + ")";
+            }
+        },
+        DECIMAL("DECIMAL") {
+            @Override
+            public String withPrecision(int precision, int scale) {
+                return sql + "(" + precision + "," + scale + ")";
+            }
+        },
         
-        // 字符串类型
-        CHAR("CHAR"),
-        VARCHAR("VARCHAR"),
+        // 字符串类型 - 需要大小参数
+        CHAR("CHAR") {
+            @Override
+            public String withSize(int size) {
+                return sql + "(" + size + ")";
+            }
+        },
+        VARCHAR("VARCHAR") {
+            @Override
+            public String withSize(int size) {
+                return sql + "(" + size + ")";
+            }
+        },
+        
+        // 文本类型
         TEXT("TEXT"),
         TINYTEXT("TINYTEXT"),
         MEDIUMTEXT("MEDIUMTEXT"),
@@ -41,62 +101,129 @@ public class DataType {
         YEAR("YEAR"),
         
         // 二进制类型
-        BINARY("BINARY"),
-        VARBINARY("VARBINARY"),
+        BINARY("BINARY") {
+            @Override
+            public String withSize(int size) {
+                return sql + "(" + size + ")";
+            }
+        },
+        VARBINARY("VARBINARY") {
+            @Override
+            public String withSize(int size) {
+                return sql + "(" + size + ")";
+            }
+        },
+        
+        // 二进制大对象类型 - 大小固定
         BLOB("BLOB"),
         TINYBLOB("TINYBLOB"),
         MEDIUMBLOB("MEDIUMBLOB"),
         LONGBLOB("LONGBLOB"),
         
+        // 枚举和集合类型 - 需要值列表
+        ENUM("ENUM") {
+            @Override
+            public String withValues(String... values) {
+                StringBuilder sb = new StringBuilder(sql).append("(");
+                for (int i = 0; i < values.length; i++) {
+                    if (i > 0) {
+                        sb.append(",");
+                    }
+                    sb.append("'").append(values[i]).append("'");
+                }
+                sb.append(")");
+                return sb.toString();
+            }
+        },
+        SET("SET") {
+            @Override
+            public String withValues(String... values) {
+                StringBuilder sb = new StringBuilder(sql).append("(");
+                for (int i = 0; i < values.length; i++) {
+                    if (i > 0) {
+                        sb.append(",");
+                    }
+                    sb.append("'").append(values[i]).append("'");
+                }
+                sb.append(")");
+                return sb.toString();
+            }
+        },
+        
         // 其他类型
-        ENUM("ENUM"),
-        SET("SET"),
         JSON("JSON");
         
-        private final String sql;
+        protected final String sql;
         
         Type(String sql) {
             this.sql = sql;
         }
 
         /**
-         * 添加大小参数，如VARCHAR(255)
+         * 添加大小参数（仅适用于支持大小的类型）
          * @param size 大小参数
          * @return 带大小参数的SQL类型
+         * @throws UnsupportedOperationException 如果类型不支持大小参数
          */
-        public String size(int size) {
-            return sql + "(" + size + ")";
+        public String withSize(int size) {
+            throw new UnsupportedOperationException("类型 " + this.name() + " 不支持大小参数");
         }
         
         /**
-         * 添加精度和小数位数，如DECIMAL(10,2)
+         * 添加精度参数（仅适用于数值类型）
+         * @param precision 精度
+         * @return 带精度参数的SQL类型
+         * @throws UnsupportedOperationException 如果类型不支持精度参数
+         */
+        public String withPrecision(int precision) {
+            throw new UnsupportedOperationException("类型 " + this.name() + " 不支持单精度参数");
+        }
+        
+        /**
+         * 添加精度和小数位数（仅适用于数值类型）
          * @param precision 精度
          * @param scale 小数位数
          * @return 带精度和小数位数的SQL类型
+         * @throws UnsupportedOperationException 如果类型不支持精度参数
          */
-        public String precision(int precision, int scale) {
-            return sql + "(" + precision + "," + scale + ")";
+        public String withPrecision(int precision, int scale) {
+            throw new UnsupportedOperationException("类型 " + this.name() + " 不支持精度和小数位数参数");
         }
         
         /**
-         * 创建ENUM类型
+         * 创建ENUM/SET类型的值列表
          * @param values 枚举值
-         * @return ENUM类型SQL
+         * @return 带值列表的SQL类型
+         * @throws UnsupportedOperationException 如果类型不支持值列表
          */
+        public String withValues(String... values) {
+            throw new UnsupportedOperationException("类型 " + this.name() + " 不支持值列表参数");
+        }
+
+        // 兼容旧代码的方法（已弃用）
+        
+        /**
+         * @deprecated 使用 {@link #withSize(int)} 替代
+         */
+        @Deprecated
+        public String size(int size) {
+            return withSize(size);
+        }
+        
+        /**
+         * @deprecated 使用 {@link #withPrecision(int, int)} 替代
+         */
+        @Deprecated
+        public String precision(int precision, int scale) {
+            return withPrecision(precision, scale);
+        }
+        
+        /**
+         * @deprecated 使用 {@link #withValues(String...)} 替代
+         */
+        @Deprecated
         public String values(String... values) {
-            if (this != ENUM && this != SET) {
-                throw new IllegalStateException("只有ENUM和SET类型可以使用values方法");
-            }
-            
-            StringBuilder sb = new StringBuilder(sql).append("(");
-            for (int i = 0; i < values.length; i++) {
-                if (i > 0) {
-                    sb.append(",");
-                }
-                sb.append("'").append(values[i]).append("'");
-            }
-            sb.append(")");
-            return sb.toString();
+            return withValues(values);
         }
     }
     
@@ -169,7 +296,7 @@ public class DataType {
         return "COMMENT '" + comment + "'";
     }
     
-    // 常用组合
+    // 常用组合（已更新使用新的类型安全方法）
     
     /**
      * 主键自增整数
@@ -193,7 +320,7 @@ public class DataType {
      * @return 可为空的VARCHAR SQL
      */
     public static String VARCHAR_NULL(int size) {
-        return Type.VARCHAR.size(size) + " " + Constraint.NULL.getSql();
+        return Type.VARCHAR.withSize(size) + " " + Constraint.NULL.getSql();
     }
     
     /**
@@ -202,7 +329,7 @@ public class DataType {
      * @return 不可为空的VARCHAR SQL
      */
     public static String VARCHAR_NOT_NULL(int size) {
-        return Type.VARCHAR.size(size) + " " + Constraint.NOT_NULL.getSql();
+        return Type.VARCHAR.withSize(size) + " " + Constraint.NOT_NULL.getSql();
     }
     
     /**
@@ -236,5 +363,120 @@ public class DataType {
     public static String TIMESTAMP_DEFAULT_CURRENT_ON_UPDATE() {
         return Type.TIMESTAMP.getSql() + " " + Constraint.DEFAULT_CURRENT_TIMESTAMP.getSql() + " " + 
                Constraint.ON_UPDATE_CURRENT_TIMESTAMP.getSql();
+    }
+    
+    // 新增的类型安全便捷方法
+    
+    /**
+     * 不可为空的CHAR
+     * @param size 大小
+     * @return 不可为空的CHAR SQL
+     */
+    public static String CHAR_NOT_NULL(int size) {
+        return Type.CHAR.withSize(size) + " " + Constraint.NOT_NULL.getSql();
+    }
+    
+    /**
+     * 可为空的CHAR
+     * @param size 大小
+     * @return 可为空的CHAR SQL
+     */
+    public static String CHAR_NULL(int size) {
+        return Type.CHAR.withSize(size) + " " + Constraint.NULL.getSql();
+    }
+    
+    /**
+     * 不可为空的DECIMAL
+     * @param precision 精度
+     * @param scale 小数位数
+     * @return 不可为空的DECIMAL SQL
+     */
+    public static String DECIMAL_NOT_NULL(int precision, int scale) {
+        return Type.DECIMAL.withPrecision(precision, scale) + " " + Constraint.NOT_NULL.getSql();
+    }
+    
+    /**
+     * 可为空的DECIMAL
+     * @param precision 精度
+     * @param scale 小数位数
+     * @return 可为空的DECIMAL SQL
+     */
+    public static String DECIMAL_NULL(int precision, int scale) {
+        return Type.DECIMAL.withPrecision(precision, scale) + " " + Constraint.NULL.getSql();
+    }
+    
+    /**
+     * 不可为空的ENUM
+     * @param values 枚举值
+     * @return 不可为空的ENUM SQL
+     */
+    public static String ENUM_NOT_NULL(String... values) {
+        return Type.ENUM.withValues(values) + " " + Constraint.NOT_NULL.getSql();
+    }
+    
+    /**
+     * 可为空的ENUM
+     * @param values 枚举值
+     * @return 可为空的ENUM SQL
+     */
+    public static String ENUM_NULL(String... values) {
+        return Type.ENUM.withValues(values) + " " + Constraint.NULL.getSql();
+    }
+    
+    /**
+     * 不可为空的TEXT
+     * @return 不可为空的TEXT SQL
+     */
+    public static String TEXT_NOT_NULL() {
+        return Type.TEXT.getSql() + " " + Constraint.NOT_NULL.getSql();
+    }
+    
+    /**
+     * 可为空的TEXT
+     * @return 可为空的TEXT SQL
+     */
+    public static String TEXT_NULL() {
+        return Type.TEXT.getSql() + " " + Constraint.NULL.getSql();
+    }
+    
+    /**
+     * 不可为空的JSON
+     * @return 不可为空的JSON SQL
+     */
+    public static String JSON_NOT_NULL() {
+        return Type.JSON.getSql() + " " + Constraint.NOT_NULL.getSql();
+    }
+    
+    /**
+     * 可为空的JSON
+     * @return 可为空的JSON SQL
+     */
+    public static String JSON_NULL() {
+        return Type.JSON.getSql() + " " + Constraint.NULL.getSql();
+    }
+    
+    /**
+     * 带显示宽度的INT
+     * @param displayWidth 显示宽度
+     * @return 带显示宽度的INT SQL
+     */
+    public static String INT_DISPLAY_WIDTH(int displayWidth) {
+        return Type.INT.withSize(displayWidth);
+    }
+    
+    /**
+     * 无符号整数
+     * @return 无符号INT SQL
+     */
+    public static String INT_UNSIGNED() {
+        return Type.INT.getSql() + " " + Constraint.UNSIGNED.getSql();
+    }
+    
+    /**
+     * 无符号大整数
+     * @return 无符号BIGINT SQL
+     */
+    public static String BIGINT_UNSIGNED() {
+        return Type.BIGINT.getSql() + " " + Constraint.UNSIGNED.getSql();
     }
 } 
