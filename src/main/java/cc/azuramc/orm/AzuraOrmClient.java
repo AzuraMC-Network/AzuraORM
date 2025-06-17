@@ -7,6 +7,7 @@ import cc.azuramc.orm.exception.AzuraOrmException;
 import cc.azuramc.orm.exception.ConfigurationException;
 import cc.azuramc.orm.manager.ChangeManager;
 import cc.azuramc.orm.util.DBUtil;
+import cc.azuramc.orm.util.DatabaseInitializer;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -49,6 +50,32 @@ public class AzuraOrmClient {
             initialized = true;
             return this;
         } catch (Exception e) {
+            e.printStackTrace();
+            throw new ConfigurationException("Failed to initialize AzuraORM client", e);
+        }
+    }
+    
+    /**
+     * 初始化客户端，并自动创建数据库（如果不存在）
+     * @param config 数据库配置
+     * @param autoCreateDatabase 是否自动创建数据库
+     * @return 当前客户端实例
+     */
+    public AzuraOrmClient initialize(DatabaseConfig config, boolean autoCreateDatabase) {
+        try {
+            // 如果启用自动创建数据库，先尝试创建数据库
+            if (autoCreateDatabase) {
+                DatabaseInitializer.ensureDatabaseExists(config);
+            }
+            
+            DBUtil.registerConfig(configName, config);
+            if ("default".equals(configName)) {
+                DBUtil.setDefaultConfigName(configName);
+            }
+            initialized = true;
+            return this;
+        } catch (Exception e) {
+            e.printStackTrace();
             throw new ConfigurationException("Failed to initialize AzuraORM client", e);
         }
     }
@@ -212,6 +239,7 @@ public class AzuraOrmClient {
     public static class ClientBuilder {
         private DatabaseConfig config;
         private String configName = "default";
+        private boolean autoCreateDatabase = false;
         
         public ClientBuilder config(DatabaseConfig config) {
             this.config = config;
@@ -223,10 +251,42 @@ public class AzuraOrmClient {
             return this;
         }
         
+        /**
+         * 启用自动创建数据库
+         * @return 构建器
+         */
+        public ClientBuilder autoCreateDatabase() {
+            this.autoCreateDatabase = true;
+            return this;
+        }
+        
+        /**
+         * 设置是否自动创建数据库
+         * @param autoCreate 是否自动创建
+         * @return 构建器
+         */
+        public ClientBuilder autoCreateDatabase(boolean autoCreate) {
+            this.autoCreateDatabase = autoCreate;
+            return this;
+        }
+        
         public ClientBuilder mysql(String host, int port, String database, String username, String password) {
             String url = String.format("jdbc:mysql://%s:%d/%s?useSSL=false&serverTimezone=UTC", host, port, database);
             this.config = new DatabaseConfig(url, username, password);
             return this;
+        }
+        
+        /**
+         * 配置MySQL连接并自动创建数据库
+         * @param host 主机地址
+         * @param port 端口
+         * @param database 数据库名
+         * @param username 用户名
+         * @param password 密码
+         * @return 构建器
+         */
+        public ClientBuilder mysqlWithAutoCreate(String host, int port, String database, String username, String password) {
+            return mysql(host, port, database, username, password).autoCreateDatabase();
         }
         
         public ClientBuilder h2(String filePath) {
@@ -284,7 +344,7 @@ public class AzuraOrmClient {
             }
             
             AzuraOrmClient client = new AzuraOrmClient(configName);
-            client.initialize(config);
+            client.initialize(config, autoCreateDatabase);
             return client;
         }
     }

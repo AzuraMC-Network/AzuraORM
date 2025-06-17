@@ -50,6 +50,7 @@ public class DBUtil {
             System.out.println("Registered database config: " + name + " with pool: " + config.getPoolName());
             
         } catch (Exception e) {
+            e.printStackTrace();
             throw new DatabaseException("Failed to create connection pool for config: " + name, e);
         }
     }

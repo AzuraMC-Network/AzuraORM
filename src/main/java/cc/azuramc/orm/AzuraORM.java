@@ -20,6 +20,16 @@ public class AzuraORM {
     }
     
     /**
+     * 初始化默认的AzuraORM客户端，并自动创建数据库（如果不存在）
+     * @param config 数据库配置
+     * @param autoCreateDatabase 是否自动创建数据库
+     */
+    public static void initialize(DatabaseConfig config, boolean autoCreateDatabase) {
+        defaultClient = new AzuraOrmClient();
+        defaultClient.initialize(config, autoCreateDatabase);
+    }
+    
+    /**
      * 快速初始化MySQL连接
      * @param host 主机地址
      * @param port 端口
@@ -30,6 +40,20 @@ public class AzuraORM {
     public static void initializeMySQL(String host, int port, String database, String username, String password) {
         defaultClient = AzuraOrmClient.builder()
             .mysql(host, port, database, username, password)
+            .build();
+    }
+    
+    /**
+     * 快速初始化MySQL连接，并自动创建数据库
+     * @param host 主机地址
+     * @param port 端口
+     * @param database 数据库名
+     * @param username 用户名
+     * @param password 密码
+     */
+    public static void initializeMySQLWithAutoCreate(String host, int port, String database, String username, String password) {
+        defaultClient = AzuraOrmClient.builder()
+            .mysqlWithAutoCreate(host, port, database, username, password)
             .build();
     }
     
@@ -47,6 +71,25 @@ public class AzuraORM {
                                      int maxPoolSize, int minIdle) {
         defaultClient = AzuraOrmClient.builder()
             .mysql(host, port, database, username, password)
+            .poolConfig(maxPoolSize, minIdle, 30000L)
+            .poolName("AzuraORM-MySQL-Default")
+            .build();
+    }
+    
+    /**
+     * 快速初始化MySQL连接，带连接池配置，并自动创建数据库
+     * @param host 主机地址
+     * @param port 端口
+     * @param database 数据库名
+     * @param username 用户名
+     * @param password 密码
+     * @param maxPoolSize 最大连接数
+     * @param minIdle 最小空闲连接数
+     */
+    public static void initializeMySQLWithAutoCreate(String host, int port, String database, String username, String password, 
+                                                   int maxPoolSize, int minIdle) {
+        defaultClient = AzuraOrmClient.builder()
+            .mysqlWithAutoCreate(host, port, database, username, password)
             .poolConfig(maxPoolSize, minIdle, 30000L)
             .poolName("AzuraORM-MySQL-Default")
             .build();
