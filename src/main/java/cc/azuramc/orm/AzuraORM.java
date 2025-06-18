@@ -1,6 +1,7 @@
 package cc.azuramc.orm;
 
 import cc.azuramc.orm.config.DatabaseConfig;
+import cc.azuramc.orm.config.GlobalConfig;
 import cc.azuramc.orm.util.DBUtil;
 
 /**
@@ -9,6 +10,22 @@ import cc.azuramc.orm.util.DBUtil;
  */
 public class AzuraORM {
     private static AzuraOrmClient defaultClient;
+    
+    /**
+     * 设置AzuraORM的Debug模式
+     * @param enabled 是否启用Debug模式
+     */
+    public static void setDebugMode(boolean enabled) {
+        GlobalConfig.setDebugMode(enabled);
+    }
+    
+    /**
+     * 获取AzuraORM的Debug模式状态
+     * @return 是否启用Debug模式
+     */
+    public static boolean isDebugMode() {
+        return GlobalConfig.isDebugMode();
+    }
     
     /**
      * 初始化默认的AzuraORM客户端

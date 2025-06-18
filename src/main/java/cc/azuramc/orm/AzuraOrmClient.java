@@ -3,6 +3,7 @@ package cc.azuramc.orm;
 import cc.azuramc.orm.builder.*;
 import cc.azuramc.orm.cache.CacheManager;
 import cc.azuramc.orm.config.DatabaseConfig;
+import cc.azuramc.orm.config.GlobalConfig;
 import cc.azuramc.orm.exception.AzuraOrmException;
 import cc.azuramc.orm.exception.ConfigurationException;
 import cc.azuramc.orm.manager.ChangeManager;
@@ -34,6 +35,24 @@ public class AzuraOrmClient {
      */
     public AzuraOrmClient(String configName) {
         this.configName = configName;
+    }
+    
+    /**
+     * 设置Debug模式
+     * @param enabled 是否启用Debug模式
+     * @return 当前客户端实例
+     */
+    public AzuraOrmClient setDebugMode(boolean enabled) {
+        GlobalConfig.setDebugMode(enabled);
+        return this;
+    }
+    
+    /**
+     * 获取Debug模式状态
+     * @return 是否启用Debug模式
+     */
+    public boolean isDebugMode() {
+        return GlobalConfig.isDebugMode();
     }
     
     /**

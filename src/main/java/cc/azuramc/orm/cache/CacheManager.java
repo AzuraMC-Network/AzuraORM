@@ -1,5 +1,7 @@
 package cc.azuramc.orm.cache;
 
+import cc.azuramc.orm.config.GlobalConfig;
+
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -33,12 +35,12 @@ public class CacheManager {
         if (cache instanceof MemoryCache) {
             ((MemoryCache<?, ?>) cache).shutdown();
         }
-        System.out.println("Removed cache: " + name);
+        GlobalConfig.debugLog("CACHE", "Removed cache: " + name);
     }
     
     public void clearAll() {
         caches.values().forEach(Cache::clear);
-        System.out.println("Cleared all caches");
+        GlobalConfig.debugLog("CACHE", "Cleared all caches");
     }
     
     public void shutdown() {
@@ -48,6 +50,6 @@ public class CacheManager {
             }
         });
         caches.clear();
-        System.out.println("Shutdown all caches");
+        GlobalConfig.debugLog("CACHE", "Shutdown all caches");
     }
 } 

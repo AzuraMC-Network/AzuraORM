@@ -1,5 +1,6 @@
 package cc.azuramc.orm.manager;
 
+import cc.azuramc.orm.config.GlobalConfig;
 import lombok.Getter;
 
 import java.util.*;
@@ -55,7 +56,7 @@ public class ChangeManager<T extends ChangeManager.DirtyTracker> {
     public void registerDirty(T entity) {
         if (entity.isDirty()) {
             dirtyEntities.add(entity);
-            System.out.println("Registered dirty entity: " + entity);
+            GlobalConfig.debugLog("CHANGE", "Registered dirty entity: " + entity);
             
             if (dirtyEntities.size() >= batchSize) {
                 flush();
@@ -72,13 +73,13 @@ public class ChangeManager<T extends ChangeManager.DirtyTracker> {
         }
         
         List<T> entitiesToUpdate = new ArrayList<>(dirtyEntities);
-        System.out.println("Flushing " + entitiesToUpdate.size() + " dirty entities");
+        GlobalConfig.debugLog("CHANGE", "Flushing " + entitiesToUpdate.size() + " dirty entities");
         
         try {
             updateFunction.accept(entitiesToUpdate);
             entitiesToUpdate.forEach(ChangeManager.DirtyTracker::cleanDirty);
             dirtyEntities.clear();
-            System.out.println("Successfully flushed " + entitiesToUpdate.size() + " entities");
+            GlobalConfig.debugLog("CHANGE", "Successfully flushed " + entitiesToUpdate.size() + " entities");
         } catch (Exception e) {
             System.err.println("Error during flush: " + e.getMessage());
             throw new RuntimeException("Failed to flush changes", e);
