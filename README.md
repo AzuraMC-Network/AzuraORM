@@ -702,12 +702,37 @@ userChangeManager.registerDirty(user);
 System.out.println("脏实体数量: " + userChangeManager.getDirtyCount());
 ```
 
+### Debug模式使用
+
+```java
+import cc.azuramc.orm.AzuraORM;
+
+// 启用Debug模式 - CacheManager和ChangeManager将输出调试信息
+AzuraORM.setDebugMode(true);
+
+// 或者通过客户端设置
+AzuraOrmClient client = new AzuraOrmClient();
+client.setDebugMode(true);
+
+// 检查Debug模式状态
+boolean isDebug = AzuraORM.isDebugMode();
+
+// Debug模式下，以下操作会输出详细信息：
+// - CacheManager的缓存操作
+// - ChangeManager的实体变更追踪
+// - 批量更新操作
+
+// 关闭Debug模式
+AzuraORM.setDebugMode(false);
+```
+
 ## 主要API
 
 ### 核心组件
 - `AzuraOrmClient`：SDK主客户端，管理数据库连接和构建器
 - `AzuraORM`：便捷入口类，提供静态方法快速初始化
 - `DatabaseConfig`：数据库配置类，支持完整的HikariCP配置
+- `GlobalConfig`：全局配置类，管理Debug模式等全局设置
 
 ### SQL构建器
 - `SelectBuilder`：查询数据构建器，支持复杂查询、JOIN、分组等
@@ -725,6 +750,7 @@ System.out.println("脏实体数量: " + userChangeManager.getDirtyCount());
 ### 其他功能
 - `ChangeManager<T>`：通用变更管理器，支持批量更新和定时刷新
 - `CacheManager`：缓存管理器，支持内存缓存
+- **Debug模式**：可控制的调试信息输出，便于开发和调试
 
 ## HikariCP连接池特性
 
@@ -791,6 +817,7 @@ String allPools = AzuraORM.getAllPoolsInfo();
 
 - `QuickStart.java`：快速开始示例
 - `ChangeManagerExample.java`：变更管理器使用示例
+- `DebugModeExample.java`：Debug模式使用示例
 - `HikariCPExample.java`：HikariCP连接池使用示例
 
 ## 最佳实践

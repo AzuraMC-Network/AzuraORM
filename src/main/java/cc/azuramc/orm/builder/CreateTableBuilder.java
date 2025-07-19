@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 建表语句构建器，用于构建CREATE TABLE语句
@@ -303,10 +304,10 @@ public class CreateTableBuilder {
         }
         
         // 添加主键、外键、唯一键和索引
-        columnDefinitions.addAll(this.primaryKeys.stream().map(pk -> "  " + pk).toList());
-        columnDefinitions.addAll(this.foreignKeys.stream().map(fk -> "  " + fk).toList());
-        columnDefinitions.addAll(this.uniqueKeys.stream().map(uk -> "  " + uk).toList());
-        columnDefinitions.addAll(this.indexes.stream().map(idx -> "  " + idx).toList());
+        columnDefinitions.addAll(this.primaryKeys.stream().map(pk -> "  " + pk).collect(Collectors.toList()));
+        columnDefinitions.addAll(this.foreignKeys.stream().map(fk -> "  " + fk).collect(Collectors.toList()));
+        columnDefinitions.addAll(this.uniqueKeys.stream().map(uk -> "  " + uk).collect(Collectors.toList()));
+        columnDefinitions.addAll(this.indexes.stream().map(idx -> "  " + idx).collect(Collectors.toList()));
         
         sqlBuilder.append(String.join(",\n", columnDefinitions));
         sqlBuilder.append("\n) ENGINE=").append(this.engine);
